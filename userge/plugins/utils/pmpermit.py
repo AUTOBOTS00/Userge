@@ -299,24 +299,25 @@ async def uninvitedPmHandler(message: Message):
                 await message.reply(
                     noPmMessage.format_map(SafeDict(**user_dict)) + '\n`- Protected by userge`')
         else:
-            await message.reply(
-                noPmMessage.format_map(SafeDict(**user_dict)) + '\n`- Protected by userge`')
+            await message.reply_video(
+                caption=f"{noPmMessage.format_map(SafeDict(**user_dict))}",
+                video="https://telegra.ph/file/cc7931a25fd8faaa89e47.mp4")
         await asyncio.sleep(1)
         await CHANNEL.log(f"#NEW_MESSAGE\n{user_dict['mention']} has messaged you")
 
 
-@userge.on_filters(~allowAllFilter & filters.outgoing & ~filters.edited
-                   & filters.private & ~Config.ALLOWED_CHATS, allow_via_bot=False)
-async def outgoing_auto_approve(message: Message):
-    """ outgoing handler """
-    userID = message.chat.id
-    if userID in pmCounter:
-        del pmCounter[userID]
-    Config.ALLOWED_CHATS.add(userID)
-    await ALLOWED_COLLECTION.update_one(
-        {'_id': userID}, {"$set": {'status': 'allowed'}}, upsert=True)
-    user_dict = await userge.get_user_dict(userID)
-    await CHANNEL.log(f"**#AUTO_APPROVED**\n{user_dict['mention']}")
+#@userge.on_filters(~allowAllFilter & filters.outgoing & ~filters.edited
+#                   & filters.private & ~Config.ALLOWED_CHATS, allow_via_bot=False)
+#async def outgoing_auto_approve(message: Message):
+#    """ outgoing handler """
+#    userID = message.chat.id
+#    if userID in pmCounter:
+#        del pmCounter[userID]
+#    Config.ALLOWED_CHATS.add(userID)
+#    await ALLOWED_COLLECTION.update_one(
+#        {'_id': userID}, {"$set": {'status': 'allowed'}}, upsert=True)
+#    user_dict = await userge.get_user_dict(userID)
+#    await CHANNEL.log(f"**#AUTO_APPROVED**\n{user_dict['mention']}")
 
 if userge.has_bot:
     @userge.bot.on_callback_query(filters.regex(pattern=r"pm_allow\((.+?)\)"))
